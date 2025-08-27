@@ -7,21 +7,29 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # DockerHub 또는 Azure Container Registry Service Connection 이름
-  dockerRegistryServiceConnection: 'mooyoungkim-docker-hub' 
-  # 실제 사용할 이미지 이름
-  imageName: 'mooyoungkim-docker-hub/test-app' # ACR 기준
-  # 만약 DockerHub 사용 시: 'mooyoungkim-docker-hub/test-app'
+  # 사용할 레지스트리 선택: DockerHub 또는 ACR
+  useACR: true      # true면 ACR, false면 DockerHub
+  dockerHubServiceConnection: 'mooyoungkim-docker-hub'    # DockerHub Service Connection 이름
+  acrServiceConnection: 'dev-acr'           # ACR Service Connection 이름
+  dockerHubImageName: 'mooyoungkim-docker-hub/test-app'
+  acrImageName: 'dev-acr/test-app'
+  imageTag: 'latest'
+  azureSubscription: 'dev-aks-subscription'
+  azureResourceGroup: 'DEV-AKS-RG'
+  kubernetesCluster: 'dev-ci-cd-aks'
+  helmChartPath: 'test-app/test-app'
+  releaseName: 'test-app'
+
 steps:
 # Docker 빌드 & 푸시
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
     command: buildAndPush
-    repository: $(imageName)
+    repository: ${{ if eq(variables['useACR'], 'true') }}: $(acrImageName) ${{ else }}: $(dockerHubImageName)
     dockerfile: '**/Dockerfile'
-    containerRegistry: $(dockerRegistryServiceConnection)
-    tags: latest
+    containerRegistry: ${{ if eq(variables['useACR'], 'true') }}: $(acrServiceConnection) ${{ else }}: $(dockerHubServiceConnection)
+    tags: $(imageTag)
 
 # Helm 설치
 - task: HelmInstaller@1
@@ -34,13 +42,13 @@ steps:
   displayName: Deploy to AKS
   inputs:
     connectionType: 'Azure Resource Manager'
-    azureSubscription: 'dev-aks-subscription'
-    azureResourceGroup: 'DEV-AKS-RG'
-    kubernetesCluster: 'dev-ci-cd-aks'
+    azureSubscription: $(azureSubscription)
+    azureResourceGroup: $(azureResourceGroup)
+    kubernetesCluster: $(kubernetesCluster)
     command: 'upgrade'
     chartType: 'FilePath'
-    chartPath: 'test-app/test-app'
-    releaseName: 'test-app'
+    chartPath: $(helmChartPath)
+    releaseName: $(releaseName)
     overrideValues: |
-      image.repository=$(imageName)
-      image.tag=latest
+      image.repository=${{ if eq(variables['useACR'], 'true') }}: $(acrImageName) ${{ else }}: $(dockerHubImageName)
+      image.tag=$(imageTag)
