@@ -7,37 +7,31 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # 사용할 레지스트리 선택: DockerHub 또는 ACR
-  useACR: true      # true면 ACR, false면 DockerHub
-  dockerHubServiceConnection: 'mooyoungkim-docker-hub'    # DockerHub Service Connection 이름
-  acrServiceConnection: 'dev-acr'           # ACR Service Connection 이름
-  dockerHubImageName: 'mooyoungkim-docker-hub/test-app'
-  acrImageName: 'dev-acr/test-app'
+  dockerHubServiceConnection: 'docker'
+  acrServiceConnection: 'acr'
+  dockerImageName: 'mooyoungacr.azurecr.io/test-app'
   imageTag: 'latest'
-  azureSubscription: 'dev-aks-subscription'
+  azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'test-app/test-app'
   releaseName: 'test-app'
 
 steps:
-# Docker 빌드 & 푸시
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
     command: buildAndPush
-    repository: ${{ if eq(variables['useACR'], 'true') }}: $(acrImageName) ${{ else }}: $(dockerHubImageName)
+    repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
-    containerRegistry: ${{ if eq(variables['useACR'], 'true') }}: $(acrServiceConnection) ${{ else }}: $(dockerHubServiceConnection)
+    containerRegistry: $(acrServiceConnection)
     tags: $(imageTag)
 
-# Helm 설치
 - task: HelmInstaller@1
   displayName: Install Helm
   inputs:
     helmVersionToInstall: 'latest'
 
-# AKS 배포
 - task: HelmDeploy@0
   displayName: Deploy to AKS
   inputs:
@@ -50,5 +44,5 @@ steps:
     chartPath: $(helmChartPath)
     releaseName: $(releaseName)
     overrideValues: |
-      image.repository=${{ if eq(variables['useACR'], 'true') }}: $(acrImageName) ${{ else }}: $(dockerHubImageName)
+      image.repository=$(dockerImageName)
       image.tag=$(imageTag)
