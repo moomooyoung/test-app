@@ -7,29 +7,34 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  # Docker Hub 서비스 커넥션 이름을 반영합니다.
-  dockerRegistryServiceConnection: mooyoungkim-docker-hub
+  # DockerHub 또는 Azure Container Registry Service Connection 이름
+  dockerRegistryServiceConnection: 'DockerHub' 
+  # 실제 사용할 이미지 이름
+  imageName: 'dev-acr/test-app' # ACR 기준
+  # 만약 DockerHub 사용 시: 'mooyoungkim-docker-hub/test-app'
 
 steps:
+# Docker 빌드 & 푸시
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
     command: buildAndPush
-    repository: 'dev-acr/test-app' # ACR 이름을 이미지 경로에 포함합니다.
+    repository: $(imageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(dockerRegistryServiceConnection)
     tags: latest
 
+# Helm 설치
 - task: HelmInstaller@1
   displayName: Install Helm
   inputs:
     helmVersionToInstall: 'latest'
 
+# AKS 배포
 - task: HelmDeploy@0
   displayName: Deploy to AKS
   inputs:
     connectionType: 'Azure Resource Manager'
-    # Azure 구독 서비스 커넥션 이름을 반영합니다.
     azureSubscription: 'dev-aks-subscription'
     azureResourceGroup: 'DEV-AKS-RG'
     kubernetesCluster: 'dev-ci-cd-aks'
@@ -38,5 +43,5 @@ steps:
     chartPath: 'test-app/test-app'
     releaseName: 'test-app'
     overrideValues: |
-      image.repository=dev-acr/test-app
+      image.repository=$(imageName)
       image.tag=latest
