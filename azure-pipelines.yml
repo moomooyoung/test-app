@@ -14,7 +14,7 @@ variables:
   azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
-  helmChartPath: 'test-app/test-app'
+  helmChartPath: 'test-app'
   releaseName: 'test-app'
 
 steps:
