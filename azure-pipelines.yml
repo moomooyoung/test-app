@@ -7,15 +7,15 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dockerRegistryServiceConnection: mooyoungkim # DockerHub 또는 AzureACR 서비스 커넥션 이름
-  imageName: 'mooyoungkim/test-app'
+  # Docker Hub 서비스 커넥션 이름을 반영합니다.
+  dockerRegistryServiceConnection: mooyoungkim-docker-hub
 
 steps:
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
     command: buildAndPush
-    repository: $(imageName)
+    repository: 'dev-acr/test-app' # ACR 이름을 이미지 경로에 포함합니다.
     dockerfile: '**/Dockerfile'
     containerRegistry: $(dockerRegistryServiceConnection)
     tags: latest
@@ -29,13 +29,14 @@ steps:
   displayName: Deploy to AKS
   inputs:
     connectionType: 'Azure Resource Manager'
-    azureSubscription: 'Visual Studio Enterprise 구독 - MPN' # 실제 연결된 Azure 구독 이름
-    azureResourceGroup: 'DEV-AKS-RG' # AKS 리소스 그룹
-    kubernetesCluster: 'dev-ci-cd-aks' # AKS 클러스터 이름
+    # Azure 구독 서비스 커넥션 이름을 반영합니다.
+    azureSubscription: 'dev-aks-subscription'
+    azureResourceGroup: 'DEV-AKS-RG'
+    kubernetesCluster: 'dev-ci-cd-aks'
     command: 'upgrade'
     chartType: 'FilePath'
-    chartPath: 'test-app/test-app' # Helm chart 실제 경로
+    chartPath: 'test-app/test-app'
     releaseName: 'test-app'
     overrideValues: |
-      image.repository=$(imageName)
+      image.repository=dev-acr/test-app
       image.tag=latest
