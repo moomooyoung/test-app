@@ -1,5 +1,3 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
-
 trigger:
 - master
 
@@ -46,3 +44,4 @@ steps:
     overrideValues: |
       image.repository=$(dockerImageName)
       image.tag=$(imageTag)
+      imagePullSecrets[0].name=acr-secret # 이 줄을 추가했습니다.
