@@ -34,14 +34,15 @@ steps:
   displayName: Deploy to AKS
   inputs:
     connectionType: 'Azure Resource Manager'
-    azureSubscription: $(azureSubscription)
-    azureResourceGroup: $(azureResourceGroup)
-    kubernetesCluster: $(kubernetesCluster)
+    azureSubscription: '$(azureSubscription)'
+    azureResourceGroup: '$(azureResourceGroup)'
+    kubernetesCluster: '$(kubernetesCluster)'
     command: 'upgrade'
+    install: true
     chartType: 'FilePath'
-    chartPath: $(helmChartPath)
-    releaseName: $(releaseName)
+    chartPath: '$(helmChartPath)'
+    releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
       image.tag=$(imageTag)
-      imagePullSecrets[0].name=acr-secret # 이 줄을 추가했습니다.
+      imagePullSecrets[0].name=acr-secret
