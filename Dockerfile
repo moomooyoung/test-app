@@ -18,3 +18,4 @@ EXPOSE 3000
 
 # 7. 컨테이너 실행 명령
 CMD ["node", "app.js"]
+# This is a test comment.ss
