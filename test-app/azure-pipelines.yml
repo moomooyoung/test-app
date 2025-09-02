@@ -8,7 +8,7 @@ variables:
   dockerHubServiceConnection: 'docker'
   acrServiceConnection: 'acr'
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
-  imageTag: 'latest'
+  # imageTag: 'latest' -> 주석 처리
   azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
@@ -23,7 +23,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: $(imageTag)
+    tags: '$(Build.BuildId)' # Build.BuildId 변수를 태그로 사용하도록 수정
 
 - task: HelmInstaller@1
   displayName: Install Helm
@@ -44,5 +44,5 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=$(imageTag)
+      image.tag=$(Build.BuildId) # 수정된 태그를 헬름 배포에 전달하도록 수정
       imagePullSecrets[0].name=acr-secret
