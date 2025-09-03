@@ -1,21 +1,21 @@
 replicaCount: 1
 
 image:
-  repository: mooyoungacr.azurecr.io/test-app  # ACR 이미지 저장소로 변경
-  tag: latest
+  repository: mooyoungacr.azurecr.io/test-app  # ACR 이미지 저장소
+  tag: latest  # 원하는 태그로 변경 가능 (예: 63)
   pullPolicy: IfNotPresent
 
-imagePullSecrets:
-  - name: acr-secret # ACR 인증을 위한 시크릿 추가
-
-nameOverride: ""
-fullnameOverride: ""
-
+# Helm 템플릿에서 serviceAccount.imagePullSecrets와 연결
 serviceAccount:
   create: true
   automount: true
+  name: test-app  # ServiceAccount 이름
   annotations: {}
-  name: ""
+  imagePullSecrets:
+    - name: acr-secret  # ACR 인증 시크릿
+
+nameOverride: ""
+fullnameOverride: ""
 
 podAnnotations: {}
 podLabels: {}
@@ -25,7 +25,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 3000  # Node.js 앱에서 사용하는 포트
+  port: 3000  # Node.js 앱 포트
 
 ingress:
   enabled: false
@@ -35,7 +35,7 @@ resources: {}
 livenessProbe:
   httpGet:
     path: /
-    port: 3000  # 앱이 띄운 포트와 맞춰야 함
+    port: 3000
 
 readinessProbe:
   httpGet:
