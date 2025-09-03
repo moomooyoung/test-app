@@ -1,0 +1,48 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerHubServiceConnection: 'docker'
+  acrServiceConnection: 'acr'
+  dockerImageName: 'mooyoungacr.azurecr.io/test-app'
+  # imageTag: 'latest'
+  azureSubscription: 'subscription'
+  azureResourceGroup: 'DEV-AKS-RG'
+  kubernetesCluster: 'dev-ci-cd-aks'
+  helmChartPath: 'test-app'
+  releaseName: 'test-app'
+
+steps:
+- task: Docker@2
+  displayName: Build and push Docker image
+  inputs:
+    command: buildAndPush
+    repository: $(dockerImageName)
+    dockerfile: '**/Dockerfile'
+    containerRegistry: $(acrServiceConnection)
+    tags: '$(Build.BuildId)'
+
+- task: HelmInstaller@1
+  displayName: Install Helm
+  inputs:
+    helmVersionToInstall: 'latest'
+
+- task: HelmDeploy@0
+  displayName: Deploy to AKS
+  inputs:
+    connectionType: 'Azure Resource Manager'
+    azureSubscription: '$(azureSubscription)'
+    azureResourceGroup: '$(azureResourceGroup)'
+    kubernetesCluster: '$(kubernetesCluster)'
+    command: 'upgrade'
+    install: true
+    chartType: 'FilePath'
+    chartPath: '$(helmChartPath)'
+    releaseName: '$(releaseName)'
+    overrideValues: |
+      image.repository=$(dockerImageName)
+      image.tag=$(Build.BuildId)
+      imagePullSecrets[0].name=acr-secret
