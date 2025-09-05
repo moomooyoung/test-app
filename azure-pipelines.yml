@@ -8,7 +8,6 @@ variables:
   dockerHubServiceConnection: 'docker'
   acrServiceConnection: 'acr'
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
-  # imageTag: 'latest'
   azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
@@ -23,7 +22,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: '$(Build.BuildId)'
+    tags: 'latest'   # 매 빌드마다 latest로 덮어쓰기
 
 - task: HelmInstaller@1
   displayName: Install Helm
@@ -44,5 +43,5 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=$(Build.BuildId)
+      image.tag=latest
       imagePullSecrets[0].name=acr-secret
