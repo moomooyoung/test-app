@@ -6,7 +6,7 @@ pool:
 
 variables:
   acrServiceConnection: 'acr'
-  dockerImageName: 'mooyoungacr.azurecr.io/test-app'
+  dockerImageName: 'test-app'
   azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
