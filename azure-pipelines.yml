@@ -5,7 +5,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dockerHubServiceConnection: 'docker'
   acrServiceConnection: 'acr'
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
   azureSubscription: 'subscription'
@@ -13,8 +12,10 @@ variables:
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'chart'
   releaseName: 'test-app'
+  dockerImageTag: '1.0.5'
 
 steps:
+# 1️⃣ Docker 이미지 빌드 & Push
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
@@ -22,13 +23,17 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 'latest'   # 매 빌드마다 latest로 덮어쓰기
+    tags: $(dockerImageTag)
+    arguments: '--no-cache'
+    addPipelineData: false   # ⚡ 경고 제거 옵션
 
+# 2️⃣ Helm 설치
 - task: HelmInstaller@1
   displayName: Install Helm
   inputs:
     helmVersionToInstall: 'latest'
 
+# 3️⃣ Helm 배포
 - task: HelmDeploy@0
   displayName: Deploy to AKS
   inputs:
@@ -42,6 +47,12 @@ steps:
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
     overrideValues: |
-      image.repository=$(dockerImageName)
-      image.tag=latest
-      imagePullSecrets[0].name=acr-secret
+       image.repository=$(dockerImageName)
+       image.tag=$(dockerImageTag)
+       imagePullSecrets[0].name=acr-secret
+
+# 4️⃣ 롤링 업데이트 적용
+- script: |
+    kubectl rollout restart deployment test-app -n default
+    kubectl get pods -n default
+  displayName: 'Restart Deployment to apply new image'
