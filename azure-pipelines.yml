@@ -46,7 +46,19 @@ steps:
       image.tag=latest
       imagePullSecrets[0].name=acr-secret
 
-# ↓ 여기 추가
+# AKS credentials 가져오기
+- task: AzureCLI@2
+  displayName: 'Get AKS credentials'
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az aks get-credentials --resource-group $(azureResourceGroup) --name $(kubernetesCluster) --overwrite-existing
+
+# rollout restart
 - script: |
+    set -x
     kubectl rollout restart deployment $(releaseName) -n default
+    kubectl get pods -n default
   displayName: 'Force restart deployment to apply latest image'
