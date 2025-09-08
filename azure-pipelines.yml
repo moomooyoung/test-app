@@ -45,3 +45,8 @@ steps:
       image.repository=$(dockerImageName)
       image.tag=latest
       imagePullSecrets[0].name=acr-secret
+
+# ↓ 여기 추가
+- script: |
+    kubectl rollout restart deployment $(releaseName) -n default
+  displayName: 'Force restart deployment to apply latest image'
