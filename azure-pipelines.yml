@@ -13,9 +13,10 @@ variables:
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'chart'
   releaseName: 'test-app'
-  dockerImageTag: '1.0.2'  # 이번 빌드 버전
+  dockerImageTag: '1.0.0'  # 원하는 기본 버전 (빌드마다 BuildId와 합쳐서 고유 태그 생성)
 
 steps:
+# 1️⃣ Docker 이미지 빌드 & Push
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
@@ -23,14 +24,16 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 'latest'   # 매 빌드마다 latest로 덮어쓰기
-    arguments: '--no-cache'   # 추가
+    tags: $(dockerImageTag)-$(Build.BuildId)  # 매 빌드마다 고유 태그
+    arguments: '--no-cache'
 
+# 2️⃣ Helm 설치
 - task: HelmInstaller@1
   displayName: Install Helm
   inputs:
     helmVersionToInstall: 'latest'
 
+# 3️⃣ AKS에 Helm 배포
 - task: HelmDeploy@0
   displayName: Deploy to AKS
   inputs:
@@ -45,10 +48,10 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=latest
+      image.tag=$(dockerImageTag)-$(Build.BuildId)
       imagePullSecrets[0].name=acr-secret
 
-# AKS credentials 가져오기
+# 4️⃣ AKS credentials 가져오기
 - task: AzureCLI@2
   displayName: 'Get AKS credentials'
   inputs:
@@ -58,9 +61,8 @@ steps:
     inlineScript: |
       az aks get-credentials --resource-group $(azureResourceGroup) --name $(kubernetesCluster) --overwrite-existing
 
-# rollout restart
+# 5️⃣ 배포 확인 (선택사항)
 - script: |
-    set -x
-    kubectl rollout restart deployment $(releaseName) -n default
+    echo "Pods after deployment:"
     kubectl get pods -n default
-  displayName: 'Force restart deployment to apply latest image'
+  displayName: 'Check pods status'
