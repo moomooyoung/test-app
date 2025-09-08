@@ -50,6 +50,8 @@ steps:
       image.repository=$(dockerImageName)
       image.tag=$(dockerImageTag)-$(Build.BuildId)
       imagePullSecrets[0].name=acr-secret
+    additionalArguments: '--wait --timeout 600s'
+
 
 # 4️⃣ AKS credentials 가져오기
 - task: AzureCLI@2
