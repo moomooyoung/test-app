@@ -23,7 +23,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 66   # 매 빌드마다 latest로 덮어쓰기
+    tags: 1.0.3  # 매 빌드마다 latest로 덮어쓰기
 
 # 2️⃣ Helm 설치
 - task: HelmInstaller@1
@@ -45,9 +45,10 @@ steps:
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
     overrideValues: |
-      image.repository=$(dockerImageName)
-      image.tag=latest
-      imagePullSecrets[0].name=acr-secret
+  image.repository=mooyoungacr.azurecr.io/test-app
+  image.tag=1.0.3
+  imagePullSecrets[0].name=acr-secret
+
 
 # 4️⃣ 롤링 업데이트 적용
 - script: |
