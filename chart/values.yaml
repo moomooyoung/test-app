@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: mooyoungacr.azurecr.io/test-app  # ACR 이미지 저장소
-  tag: latest  # 원하는 태그로 변경 가능 (예: 63)
+  tag: "1.0.2"  # 이번 빌드 버전 태그로 변경
   pullPolicy: Always
 
 # Helm 템플릿에서 serviceAccount.imagePullSecrets와 연결
