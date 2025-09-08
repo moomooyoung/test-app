@@ -23,6 +23,7 @@ steps:
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
     tags: 'latest'   # 매 빌드마다 latest로 덮어쓰기
+    arguments: '--no-cache'   # 추가
 
 - task: HelmInstaller@1
   displayName: Install Helm
