@@ -47,10 +47,10 @@ steps:
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
     overrideValues: |
-      image.repository=$(dockerImageName)
-      image.tag=$(dockerImageTag)-$(Build.BuildId)
+      image.repository=mooyoungacr.azurecr.io/test-app
+      image.tag=1.0.0-$(Build.BuildId)
       imagePullSecrets[0].name=acr-secret
-    additionalArguments: '--wait --timeout 600s'
+
 
 
 # 4️⃣ AKS credentials 가져오기
