@@ -13,6 +13,7 @@ variables:
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'chart'
   releaseName: 'test-app'
+  dockerImageTag: '1.0.3'  # 원하는 이미지 버전
 
 steps:
 # 1️⃣ Docker 이미지 빌드 & Push
@@ -23,7 +24,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 1.0.3  # 매 빌드마다 latest로 덮어쓰기
+    tags: $(dockerImageTag)
 
 # 2️⃣ Helm 설치
 - task: HelmInstaller@1
@@ -45,12 +46,12 @@ steps:
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
     overrideValues: |
-  image.repository=mooyoungacr.azurecr.io/test-app
-  image.tag=1.0.3
-  imagePullSecrets[0].name=acr-secret
+      image.repository=$(dockerImageName)
+      image.tag=$(dockerImageTag)
+      imagePullSecrets:
+        - name: acr-secret
 
-
-# 4️⃣ 롤링 업데이트 적용
+# 4️⃣ 롤링 업데이트 적용 (기존 Pod를 새 이미지로 교체)
 - script: |
     kubectl rollout restart deployment test-app -n default
     kubectl get pods -n default
