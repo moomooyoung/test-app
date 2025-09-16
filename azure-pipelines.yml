@@ -22,7 +22,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 'latest'   # 매 빌드마다 latest로 덮어쓰기
+    tags: '$(Build.BuildId)'
 
 - task: HelmInstaller@1
   displayName: Install Helm
@@ -41,8 +41,7 @@ steps:
     chartType: 'FilePath'
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
-    tags: '$(Build.BuildId)'
-    overrideValues: |
-      image.repository=$(dockerImageName)
-      image.tag=$(Build.BuildId)
+    overrideValues: >
+      image.repository=$(dockerImageName),
+      image.tag=$(Build.BuildId),
       imagePullSecrets[0].name=acr-secret
