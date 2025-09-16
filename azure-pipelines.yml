@@ -44,4 +44,4 @@ steps:
     overrideValues: |
       image.repository=$(dockerImageName)
       image.tag=$(Build.BuildId)
-      imagePullSecrets[0].name=acr-secret
+      image.pullPolicy=Always
