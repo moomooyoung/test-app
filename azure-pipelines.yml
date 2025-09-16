@@ -22,7 +22,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tags: 1.0.17
+    tag: 1.0.17
 
 - task: HelmInstaller@1
   displayName: Install Helm
@@ -43,5 +43,5 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tags: 1.0.17
+      image.tag: 1.0.17
       imagePullSecrets[0].name=acr-secret
