@@ -41,7 +41,8 @@ steps:
     chartType: 'FilePath'
     chartPath: '$(helmChartPath)'
     releaseName: '$(releaseName)'
+    tags: '$(Build.BuildId)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=latest
+      image.tag=$(Build.BuildId)
       imagePullSecrets[0].name=acr-secret
