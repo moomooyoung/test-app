@@ -5,13 +5,14 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  acrServiceConnection: 'acr' 
+  acrServiceConnection: 'acr'
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
-  azureSubscription: 'subscription' 
+  azureSubscription: 'subscription'
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'chart'
   releaseName: 'test-app'
+  imageTag: '$(Build.BuildId)' # <--- 동적 변수 정의
 
 steps:
 - task: Docker@2
@@ -21,7 +22,7 @@ steps:
     repository: $(dockerImageName)
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tag: 1.0.17
+    tag: $(imageTag) # <--- Docker 태스크에서 변수 사용
 
 - task: HelmInstaller@1
   displayName: Install Helm
@@ -42,5 +43,4 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=113
-     
+      image.tag=$(imageTag) # <--- Helm 태스크에서 동일한 변수 사용
