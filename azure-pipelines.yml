@@ -43,4 +43,5 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=$(imageTag) # <--- Helm 태스크에서 동일한 변수 사용
+      image.tag=$(imageTag) 
+    arguments: '--wait' 
