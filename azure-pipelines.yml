@@ -19,7 +19,7 @@ steps:
   displayName: Build and push Docker image
   inputs:
     command: buildAndPush
-    repository: $(dockerImageName)
+    repository: test-app
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
     tag: $(imageTag) # <--- Docker 태스크에서 변수 사용
@@ -27,7 +27,7 @@ steps:
 - task: HelmInstaller@1
   displayName: Install Helm
   inputs:
-    helmVersionToInstall: 'latest'
+    helmVersionToInstall: '3.15.4'
 
 - task: HelmDeploy@0
   displayName: Deploy to AKS
