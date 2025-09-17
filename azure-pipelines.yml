@@ -42,5 +42,5 @@ steps:
     releaseName: '$(releaseName)'
     overrideValues: |
       image.repository=$(dockerImageName)
-      image.tag=1.0.17
+      image.tag=113
      
