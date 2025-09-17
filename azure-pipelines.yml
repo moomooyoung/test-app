@@ -5,10 +5,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dockerHubServiceConnection: 'docker'
-  acrServiceConnection: 'acr'
+  acrServiceConnection: 'acr' 
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
-  azureSubscription: 'subscription'
+  azureSubscription: 'subscription' 
   azureResourceGroup: 'DEV-AKS-RG'
   kubernetesCluster: 'dev-ci-cd-aks'
   helmChartPath: 'chart'
@@ -44,4 +43,4 @@ steps:
     overrideValues: |
       image.repository=$(dockerImageName)
       image.tag=1.0.17
-      imagePullSecrets[0].name=acr-secret
+     
