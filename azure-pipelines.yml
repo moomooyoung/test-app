@@ -9,7 +9,7 @@ variables:
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
   gitOpsRepoUrl: 'https://github.com/moomooyoung/test-app.git' # GitOps repo URL
   gitOpsRepoBranch: 'main'
-  gitOpsRepoPath: 'Chart' # Helm 차트 경로
+  gitOpsRepoPath: 'chart' # Helm 차트 경로
   imageTag: '$(Build.BuildId)'     # 동적 이미지 태그
   gitUserName: 'AzurePipeline'
   gitUserEmail: 'azure-pipeline@yourdomain.com'
