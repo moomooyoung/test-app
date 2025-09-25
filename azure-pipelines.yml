@@ -7,14 +7,15 @@ pool:
 variables:
   acrServiceConnection: 'acr'
   dockerImageName: 'mooyoungacr.azurecr.io/test-app'
-  azureSubscription: 'subscription'
-  azureResourceGroup: 'DEV-AKS-RG'
-  kubernetesCluster: 'dev-ci-cd-aks'
-  helmChartPath: 'chart'
-  releaseName: 'test-app'
-  imageTag: '$(Build.BuildId)' # <--- 동적 변수 정의
+  gitOpsRepoUrl: 'https://github.com/moomooyoung/test-app.git' # GitOps repo URL
+  gitOpsRepoBranch: 'main'
+  gitOpsRepoPath: 'Chart' # Helm 차트 경로
+  imageTag: '$(Build.BuildId)'     # 동적 이미지 태그
+  gitUserName: 'AzurePipeline'
+  gitUserEmail: 'azure-pipeline@yourdomain.com'
 
 steps:
+# 1️⃣ Docker Build & Push
 - task: Docker@2
   displayName: Build and push Docker image
   inputs:
@@ -22,26 +23,30 @@ steps:
     repository: test-app
     dockerfile: '**/Dockerfile'
     containerRegistry: $(acrServiceConnection)
-    tag: $(imageTag) # <--- Docker 태스크에서 변수 사용
+    tag: $(imageTag)
 
-- task: HelmInstaller@1
-  displayName: Install Helm
+# 2️⃣ GitOps Repo Update
+- task: Bash@3
+  displayName: Update GitOps repo with new image tag
   inputs:
-    helmVersionToInstall: '3.15.4'
+    targetType: 'inline'
+    script: |
+      # Git 설치 확인 (Ubuntu 에이전트에는 기본 설치됨)
+      git --version
 
-- task: HelmDeploy@0
-  displayName: Deploy to AKS
-  inputs:
-    connectionType: 'Azure Resource Manager'
-    azureSubscription: '$(azureSubscription)'
-    azureResourceGroup: '$(azureResourceGroup)'
-    kubernetesCluster: '$(kubernetesCluster)'
-    command: 'upgrade'
-    install: true
-    chartType: 'FilePath'
-    chartPath: '$(helmChartPath)'
-    releaseName: '$(releaseName)'
-    overrideValues: |
-      image.repository=$(dockerImageName)
-      image.tag=$(imageTag) 
-    arguments: '--wait' 
+      # repo clone
+      git clone --branch $(gitOpsRepoBranch) $(gitOpsRepoUrl) gitops-repo
+      cd gitops-repo/$(gitOpsRepoPath)
+
+      # values.yaml 이미지 태그 수정
+      sed -i 's|tag: .*|tag: $(imageTag)|' values.yaml
+      sed -i 's|repository: .*|repository: $(dockerImageName)|' values.yaml
+
+      # git config
+      git config user.name "$(gitUserName)"
+      git config user.email "$(gitUserEmail)"
+
+      # commit & push
+      git add values.yaml
+      git commit -m "Update image to $(imageTag) via Azure Pipeline"
+      git push origin $(gitOpsRepoBranch)
