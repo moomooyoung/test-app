@@ -1,46 +1,48 @@
 // app.js
-const express = require('express');
-const os = require('os');
-const app = express();
-const port = 3000;
+import chalk from "chalk";
+import figlet from "figlet";
+import gradient from "gradient-string";
+import inquirer from "inquirer";
+import chalkAnimation from "chalk-animation";
 
-// 랜덤 색상 생성 (요청마다 배경색 다르게 보여줌)
-function getRandomColor() {
-  const colors = ['#0078D7', '#00B294', '#FFB900', '#E81123', '#107C10', '#5C2D91'];
-  return colors[Math.floor(Math.random() * colors.length)];
+console.clear();
+
+const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
+
+async function welcome() {
+  const rainbowTitle = chalkAnimation.rainbow("🚀 Welcome to the Magic Console World! 🌈");
+  await sleep();
+  rainbowTitle.stop();
+
+  console.log(`
+${chalk.cyanBright("────────────────────────────────────────────")}
+${chalk.magentaBright("✨ This is a colorful Node.js experience ✨")}
+${chalk.cyanBright("────────────────────────────────────────────")}
+`);
 }
 
-app.get('/', (req, res) => {
-  const hostname = os.hostname();
-  const color = getRandomColor();
-  res.send(`
-    <html>
-      <head>
-        <title>🚀 Test App by Kim Mooyoung</title>
-        <style>
-          body {
-            background-color: ${color};
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-          }
-          h1 { font-size: 3rem; margin-bottom: 10px; }
-          h2 { font-size: 1.2rem; opacity: 0.8; }
-        </style>
-      </head>
-      <body>
-        <h1>🚀 Hello from Kubernetes!</h1>
-        <h2>Pod: ${hostname}</h2>
-        <h2>Powered by Azure & Docker 🐳</h2>
-      </body>
-    </html>
-  `);
-});
+async function askName() {
+  const answers = await inquirer.prompt({
+    name: "user_name",
+    type: "input",
+    message: "What's your name, traveler? 😎",
+    default() {
+      return "Anonymous";
+    },
+  });
 
-app.listen(port, () => {
-  console.log(`✅ App running on port ${port}`);
-});
+  return answers.user_name;
+}
+
+async function showBanner(name) {
+  console.clear();
+  const msg = `Hello ${name}!`;
+  figlet(msg, (err, data) => {
+    console.log(gradient.pastel.multiline(data));
+    console.log(chalk.yellowBright("\n✨ Welcome to your colorful adventure! ✨\n"));
+  });
+}
+
+await welcome();
+const name = await askName();
+await showBanner(name);
