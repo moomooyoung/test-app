@@ -4,14 +4,14 @@ FROM node:18-alpine
 # 앱 폴더 생성
 WORKDIR /app
 
-# 종속성 복사 및 설치
-COPY package*.json ./
+# package.json 복사 및 설치
+COPY app/package*.json ./
 RUN npm install
 
 # 앱 코드 복사
-COPY . .
+COPY app/. .
 
-# 포트 오픈 (optional)
+# 포트 오픈
 EXPOSE 3000
 
 # 실행 명령
