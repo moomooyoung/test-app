@@ -1,20 +1,18 @@
-# 1️⃣ 베이스 이미지
+# Node.js 기반 이미지 사용
 FROM node:18-alpine
 
-# 2️⃣ 작업 디렉터리 생성
-WORKDIR /app
+# 앱 폴더 생성
+WORKDIR /usr/src/app
 
-# 3️⃣ package.json과 package-lock.json 복사
+# 종속성 복사 및 설치
 COPY package*.json ./
+RUN npm install
 
-# 4️⃣ 의존성 설치
-RUN npm install --production
-
-# 5️⃣ 앱 소스 전체 복사
+# 앱 코드 복사
 COPY . .
 
-# 6️⃣ 앱 포트 노출
+# 포트 오픈 (optional)
 EXPOSE 3000
 
-# 7️⃣ 앱 실행
-CMD ["node", "app.js"]
+# 실행 명령
+CMD ["npm", "start"]
