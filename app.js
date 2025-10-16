@@ -1,19 +1,21 @@
+import express from "express";
 import chalk from "chalk";
 import figlet from "figlet";
 import gradient from "gradient-string";
 import chalkAnimation from "chalk-animation";
 
-console.clear();
+const app = express();
+const port = process.env.PORT || 3000;
 
-const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
+app.get("/", (req, res) => {
+  const message = figlet.textSync("Hello CI/CD!", { horizontalLayout: "default" });
+  res.send(`<pre>${message}</pre><p>🚀 Deploy me with CI/CD! 🌈</p>`);
+});
 
-async function start() {
+app.listen(port, "0.0.0.0", () => {
+  console.clear();
   const rainbow = chalkAnimation.rainbow("🚀 Deploy me with CI/CD! 🌈");
-  await sleep();
-  rainbow.stop();
-
-  console.log(gradient.pastel.multiline(figlet.textSync("Hello CI/CD!", { horizontalLayout: "default" })));
+  setTimeout(() => rainbow.stop(), 2000);
+  console.log(gradient.pastel.multiline(figlet.textSync("Hello CI/CD!")));
   console.log(chalk.yellowBright("\n✨ Node.js app successfully running! ✨"));
-}
-
-start();
+});
