@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # 앱 폴더 생성
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # 종속성 복사 및 설치
 COPY package*.json ./
