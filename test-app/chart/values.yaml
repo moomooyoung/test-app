@@ -1,0 +1,56 @@
+replicaCount: 1
+
+image:
+  repository: mooyoungacr.azurecr.io/test-app
+  tag: 116 # <--- 최신 태그로 업데이트 (파이프라인에서 오버라이드 예정)
+  pullPolicy: Always
+
+# Helm 템플릿에서 serviceAccount.imagePullSecrets와 연결
+serviceAccount:
+  create: true
+  automount: true
+  name: kubernetes # <--- 이 이름이 AKS의 Service Account 이름과 일치해야 함
+  annotations: {}
+  # imagePullSecrets: # <--- Workload Identity 사용 시 이 부분을 제거/주석 처리
+  #   - name: acr-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 3000
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 3000
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
