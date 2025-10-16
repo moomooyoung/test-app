@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 
 app.listen(port, "0.0.0.0", () => {
   console.clear();
-  const rainbow = chalkAnimation.rainbow("🚀 Deploy me with CI/CD! 🌈");
+  const rainbow = chalkAnimation.rainbow("🚀 Deploy me with CI/CD!! 🌈");
   setTimeout(() => rainbow.stop(), 2000);
   console.log(gradient.pastel.multiline(figlet.textSync("Hello CI/CD!")));
   console.log(chalk.yellowBright("\n✨ Node.js app successfully running! ✨"));
