@@ -1,0 +1,47 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  acrServiceConnection: 'acr'
+  dockerImageName: 'mooyoungacr.azurecr.io/test-app'
+  azureSubscription: 'subscription'
+  azureResourceGroup: 'DEV-AKS-RG'
+  kubernetesCluster: 'dev-ci-cd-aks'
+  helmChartPath: 'chart'
+  releaseName: 'test-app'
+  imageTag: '$(Build.BuildId)' # <--- 동적 변수 정의
+
+steps:
+- task: Docker@2
+  displayName: Build and push Docker image
+  inputs:
+    command: buildAndPush
+    repository: test-app
+    dockerfile: '**/Dockerfile'
+    containerRegistry: $(acrServiceConnection)
+    tag: $(imageTag) # <--- Docker 태스크에서 변수 사용
+
+- task: HelmInstaller@1
+  displayName: Install Helm
+  inputs:
+    helmVersionToInstall: '3.15.4'
+
+- task: HelmDeploy@0
+  displayName: Deploy to AKS
+  inputs:
+    connectionType: 'Azure Resource Manager'
+    azureSubscription: '$(azureSubscription)'
+    azureResourceGroup: '$(azureResourceGroup)'
+    kubernetesCluster: '$(kubernetesCluster)'
+    command: 'upgrade'
+    install: true
+    chartType: 'FilePath'
+    chartPath: '$(helmChartPath)'
+    releaseName: '$(releaseName)'
+    overrideValues: |
+      image.repository=$(dockerImageName)
+      image.tag=$(imageTag) 
+    arguments: '--wait' 
