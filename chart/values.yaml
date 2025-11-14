@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: mooyoungacr.azurecr.io/test-app
-  tag: 116 # <--- 최신 태그로 업데이트 (파이프라인에서 오버라이드 예정)
+  repository: mooacr.azurecr.io/test-app
+  tag: 117 # <--- 최신 태그로 업데이트 (파이프라인에서 오버라이드 예정)
   pullPolicy: Always
 
 # Helm 템플릿에서 serviceAccount.imagePullSecrets와 연결
