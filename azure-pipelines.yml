@@ -13,7 +13,7 @@ variables:
   helmChartPath: 'chart'
   releaseName: 'test-app'                   # Helm release 이름
   imageTag: '$(Build.BuildId)'              # 빌드 버전 태그 : 동적 값. 빌드마다 고유한 번호가 할당되어 버전 추적 및 롤백이 가능해집니다.
-
+  
 steps:
 - task: Docker@2
   displayName: Build and push Docker image
