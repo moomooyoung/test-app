@@ -51,7 +51,7 @@ app.get("/", (req, res) => {
     </head>
     <body>
       <div class="rocket">🚀</div>
-      <h1>✨ Node.js App Deployed Successfully! M0000✨</h1>
+      <h1>✨ Node.js App Deployed Successfully!!✨</h1>
       <p>Powered by <b style="color:#ff00ff;">Helm</b> & <b style="color:#00ffff;">AKS</b></p>
     </body>
   </html>
